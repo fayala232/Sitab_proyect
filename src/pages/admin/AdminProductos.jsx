@@ -61,6 +61,7 @@ export default function AdminProductos() {
   return (
     <div className="admin-dashboard-wrapper">
       <header className="admin-header">
+        <div className="admin-centered-wrapper">
         <div className="header-left">
           <div className="logo-section">
             <span className="logo-icon">🛒</span>
@@ -72,6 +73,7 @@ export default function AdminProductos() {
           <button onClick={handleLogout} className="btn-logout">
             Cerrar Sesión
           </button>
+        </div>
         </div>
       </header>
 
