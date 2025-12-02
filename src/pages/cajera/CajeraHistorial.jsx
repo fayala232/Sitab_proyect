@@ -37,19 +37,25 @@ export default function CajeraHistorial() {
   return (
     <div>
       {/* Header */}
-      <nav className="navigation">
-        <div className="nav-container">
-          <a href="/cajera" className="logo">
-            🛒 SITAB
-          </a>
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <span style={{ color: "var(--color-muted-foreground)" }}>{userName}</span>
-            <button onClick={logout} className="btn btn-outline">
-              Cerrar Sesión
-            </button>
+      <header className="cajera-header">
+        <div className="header-left">
+          <div className="logo-section">
+            <span className="logo-icon">🛒</span>
+            <span className="logo-text">SITAB</span>
           </div>
         </div>
-      </nav>
+
+        <div className="header-right">
+          <span className="user-role">{userName}</span>
+            <button 
+              className="btn-logout"
+              onClick={logout}
+            >
+              Cerrar Sesión
+            </button>
+        </div>
+      </header>
+
 
       <div className="container" style={{ padding: "2rem 1rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
