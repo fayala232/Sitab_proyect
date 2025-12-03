@@ -138,7 +138,7 @@ export default function CajeraDashboard() {
 
 
       <div className="container" style={{ padding: "2rem 1rem" }}>
-        <h1 style={{ marginBottom: "2rem" }}>Registrar Venta</h1>
+        <h1 className="mb-0 titulo-interno">Registrar Venta</h1>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: "2rem" }}>
           {/* Panel de búsqueda y productos */}

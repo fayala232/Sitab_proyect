@@ -59,8 +59,8 @@ export default function CajeraHistorial() {
 
       <div className="container" style={{ padding: "2rem 1rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-          <h1>Historial de Ventas del Día</h1>
-          <a href="/cajera" className="btn btn-primary">
+          <h1 className="mb-0 titulo-interno">Historial de Ventas del Día</h1>
+          <a href="/cajera" className="btn btn-primary btn-interno align-self-md-end">
             Volver a Ventas
           </a>
         </div>

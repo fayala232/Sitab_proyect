@@ -22,7 +22,7 @@ export default function AdminDashboard() {
 
   const totalProducts = products.length
   const lowStockProducts = products.filter((p) => p.stock < 10).length
-  const totalValue = products.reduce((sum, p) => sum + p.precio * p.stock, 0).toFixed(2)
+  //const totalValue = products.reduce((sum, p) => sum + p.precio * p.stock, 0).toFixed(2)
   const salestoday = "$0.00"
 
   return (
@@ -46,7 +46,7 @@ export default function AdminDashboard() {
 
       <main className="admin-main">
         <div className="admin-container">
-          <h1 className="page-title">Panel de Administración</h1>
+          <h1 className="mb-0 titulo-interno">Panel de Administración</h1>
 
           <div className="stats-grid-4">
             <div className="stat-card">

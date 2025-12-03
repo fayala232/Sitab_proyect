@@ -1,13 +1,13 @@
 "use client"
 
-import { useState } from "react"
+//import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { products } from "../../lib/product-data"
 import "../../sitab.css"
 
 export default function AdminReportes() {
   const navigate = useNavigate()
-  const [filterType, setFilterType] = useState("todos")
+  //const [filterType, setFilterType] = useState("todos")
 
   const handleLogout = () => {
     localStorage.removeItem("userRole")
@@ -59,7 +59,7 @@ export default function AdminReportes() {
 
       <main className="main-content">
         <header className="top-bar">
-          <h1>Reportes y Análisis</h1>
+          <h1 className="titulo-interno">Reportes y Análisis</h1>
         </header>
 
         <div className="dashboard-grid">
@@ -82,8 +82,8 @@ export default function AdminReportes() {
         </div>
 
         <div className="card" style={{ marginTop: "2rem" }}>
-          <h2>Productos por Categoría</h2>
-          <div className="summary-table">
+          <h2 className="titulo-interno">Productos por Categoría</h2>
+          <div className="summary-table texto-interno">
             {Object.entries(byCategory).map(([category, count]) => (
               <div key={category} className="summary-row">
                 <span>{category}</span>
