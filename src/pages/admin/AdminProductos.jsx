@@ -47,10 +47,7 @@ export default function AdminProductos() {
     if (editingProduct) {
       setProductList(productList.map((p) => (p.id === editingProduct.id ? { ...formData, id: p.id } : p)))
     } else {
-      setProductList([
-        ...productList,
-        { ...formData, id: Math.max(...productList.map((p) => p.id)) + 1 },
-      ])
+      setProductList([...productList, { ...formData, id: Math.max(...productList.map((p) => p.id)) + 1 }])
     }
     setShowModal(false)
     setFormData({ codigo: "", nombre: "", precio: "", stock: "", categoria: "", proveedor: "" })
@@ -63,41 +60,32 @@ export default function AdminProductos() {
 
   return (
     <div className="admin-dashboard-wrapper">
-      {/* Header global admin */}
       <header className="admin-header">
-        <div className="admin-centered-wrapper d-flex justify-content-between align-items-center">
-          <div className="header-left">
-            <div className="logo-section">
-              <span className="logo-icon">🛒</span>
-              <span className="logo-text">SITAB</span>
-            </div>
+        <div className="admin-centered-wrapper">
+        <div className="header-left">
+          <div className="logo-section">
+            <span className="logo-icon">🛒</span>
+            <span className="logo-text">SITAB</span>
           </div>
-          <div className="header-right d-flex align-items-center gap-3">
-            <span className="user-role">Administrador</span>
-            <button onClick={handleLogout} className="btn-logout">
-              Cerrar Sesión
-            </button>
-          </div>
+        </div>
+        <div className="header-right">
+          <span className="user-role">Administrador</span>
+          <button onClick={handleLogout} className="btn-logout">
+            Cerrar Sesión
+          </button>
+        </div>
         </div>
       </header>
 
       <main className="admin-main">
         <div className="admin-container">
-          {/* Header interno responsivo */}
-          <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-            <h1 className="page-title mb-0">Gestión de Productos</h1>
-            <div className="d-flex flex-wrap gap-2">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+            <h1 className="page-title">Gestión de Productos</h1>
+            <div style={{ display: "flex", gap: "1rem" }}>
               <button
                 onClick={() => {
                   setEditingProduct(null)
-                  setFormData({
-                    codigo: "",
-                    nombre: "",
-                    precio: "",
-                    stock: "",
-                    categoria: "",
-                    proveedor: "",
-                  })
+                  setFormData({ codigo: "", nombre: "", precio: "", stock: "", categoria: "", proveedor: "" })
                   setShowModal(true)
                 }}
                 className="btn btn-success"
@@ -110,35 +98,30 @@ export default function AdminProductos() {
             </div>
           </div>
 
-          {/* Filtros */}
-          <div className="card mb-4">
-            <div className="row g-3 mb-3">
-              <div className="col-12 col-md-8">
-                <input
-                  type="text"
-                  placeholder="Buscar producto..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="input-field w-100"
-                />
-              </div>
-              <div className="col-12 col-md-4">
-                <select
-                  value={filterCategory}
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                  className="input-field w-100"
-                >
-                  <option value="all">Todas las categorías</option>
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
+          <div className="card" style={{ marginBottom: "2rem" }}>
+            <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+              <input
+                type="text"
+                placeholder="Buscar producto..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="input-field"
+                style={{ flex: 1 }}
+              />
+              <select
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                className="input-field"
+              >
+                <option value="all">Todas las categorías</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {/* Tabla */}
             <div style={{ overflowX: "auto" }}>
               <table className="table">
                 <thead>
@@ -159,23 +142,15 @@ export default function AdminProductos() {
                       <td>{product.nombre}</td>
                       <td>${product.precio.toFixed(2)}</td>
                       <td>
-                        <span className={product.stock < 10 ? "text-danger" : "text-success"}>
-                          {product.stock}
-                        </span>
+                        <span className={product.stock < 10 ? "text-danger" : "text-success"}>{product.stock}</span>
                       </td>
                       <td>{product.categoria}</td>
                       <td>{product.proveedor}</td>
                       <td>
-                        <button
-                          onClick={() => handleEdit(product)}
-                          className="btn btn-small btn-primary me-2"
-                        >
+                        <button onClick={() => handleEdit(product)} className="btn btn-small btn-primary">
                           ✏️ Editar
                         </button>
-                        <button
-                          onClick={() => handleDelete(product.id)}
-                          className="btn btn-small btn-danger"
-                        >
+                        <button onClick={() => handleDelete(product.id)} className="btn btn-small btn-danger">
                           🗑️ Eliminar
                         </button>
                       </td>
@@ -186,7 +161,6 @@ export default function AdminProductos() {
             </div>
           </div>
 
-          {/* Modal */}
           {showModal && (
             <div className="modal-overlay" onClick={() => setShowModal(false)}>
               <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -229,9 +203,7 @@ export default function AdminProductos() {
                     <input
                       type="number"
                       value={formData.precio}
-                      onChange={(e) =>
-                        setFormData({ ...formData, precio: Number.parseFloat(e.target.value) })
-                      }
+                      onChange={(e) => setFormData({ ...formData, precio: Number.parseFloat(e.target.value) })}
                       className="input-field"
                       step="0.01"
                     />
@@ -241,9 +213,7 @@ export default function AdminProductos() {
                     <input
                       type="number"
                       value={formData.stock}
-                      onChange={(e) =>
-                        setFormData({ ...formData, stock: Number.parseInt(e.target.value) })
-                      }
+                      onChange={(e) => setFormData({ ...formData, stock: Number.parseInt(e.target.value) })}
                       className="input-field"
                     />
                   </div>

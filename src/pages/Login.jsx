@@ -8,6 +8,8 @@ import "../sitab.css"
 export default function Login() {
   const [usuario, setUsuario] = useState("")
   const [password, setPassword] = useState("")
+  const [inputFocus, setInputFocus] = useState(null) // Para saber cuál input está seleccionado
+  const [hover, setHover] = useState(false) // Para efecto del botón
   const navigate = useNavigate()
 
   const handleSubmit = (e) => {
@@ -38,11 +40,26 @@ export default function Login() {
         </div>
 
         <form onSubmit={handleSubmit}>
+          
+          {/* USUARIO */}
           <div className="form-group">
             <label htmlFor="usuario">Usuario</label>
-            <input type="text" id="usuario" value={usuario} onChange={(e) => setUsuario(e.target.value)} required />
+            <input
+              type="text"
+              id="usuario"
+              value={usuario}
+              onChange={(e) => setUsuario(e.target.value)}
+              onFocus={() => setInputFocus("usuario")}
+              onBlur={() => setInputFocus(null)}
+              style={{
+                border: inputFocus === "usuario" ? "2px solid #007bff" : "1px solid #ccc",
+                transition: "0.2s"
+              }}
+              required
+            />
           </div>
 
+          {/* PASSWORD */}
           <div className="form-group">
             <label htmlFor="password">Contraseña</label>
             <input
@@ -50,17 +67,36 @@ export default function Login() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onFocus={() => setInputFocus("password")}
+              onBlur={() => setInputFocus(null)}
+              style={{
+                border: inputFocus === "password" ? "2px solid #007bff" : "1px solid #ccc",
+                transition: "0.2s"
+              }}
               required
             />
           </div>
 
-          <button type="submit" className="btn btn-primary" style={{ width: "100%" }}>
+          {/* BOTÓN */}
+          <button
+            type="submit"
+            className="btn btn-primary"
+            style={{
+              width: "100%",
+              backgroundColor: hover ? "#a96500ff" : "#ea8807ff",
+              transition: "0.2s"
+            }}
+            onMouseOver={() => setHover(true)}
+            onMouseOut={() => setHover(false)}
+          >
             Iniciar Sesión
           </button>
         </form>
 
         <div className="login-footer">
-          <p style={{ fontSize: "0.875rem" }}>Contacta al administrador si tienes problemas para acceder</p>
+          <p style={{ fontSize: "0.875rem" }}>
+            Contacta al administrador si tienes problemas para acceder
+          </p>
         </div>
       </div>
     </div>
