@@ -31,7 +31,10 @@ export default function AdminUsuarios() {
     if (editingUser) {
       setUsers(users.map((u) => (u.id === editingUser.id ? { ...formData, id: u.id } : u)))
     } else {
-      setUsers([...users, { ...formData, id: Math.max(...users.map((u) => u.id), 0) + 1 }])
+      setUsers([
+        ...users,
+        { ...formData, id: Math.max(...users.map((u) => u.id), 0) + 1 },
+      ])
     }
     setShowModal(false)
     setFormData({ usuario: "", nombre: "", rol: "cajera", estado: "activo" })
@@ -44,6 +47,7 @@ export default function AdminUsuarios() {
 
   return (
     <div className="dashboard-container">
+      {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-header">
           <h2>SITAB</h2>
@@ -68,14 +72,19 @@ export default function AdminUsuarios() {
           </a>
         </nav>
 
-        <button onClick={handleLogout} className="btn btn-danger" style={{ width: "100%", marginTop: "auto" }}>
+        <button
+          onClick={handleLogout}
+          className="btn btn-danger"
+          style={{ width: "100%", marginTop: "auto" }}
+        >
           🚪 Cerrar Sesión
         </button>
       </aside>
 
+      {/* Contenido */}
       <main className="main-content">
-        <header className="top-bar">
-          <h1>Gestión de Usuarios</h1>
+        <header className="top-bar d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+          <h1 className="mb-0">Gestión de Usuarios</h1>
           <div className="user-info">
             <button
               onClick={() => {
@@ -109,14 +118,22 @@ export default function AdminUsuarios() {
                     <td>{user.nombre}</td>
                     <td>{user.rol}</td>
                     <td>
-                      <span className={user.estado === "activo" ? "text-success" : "text-danger"}>{user.estado}</span>
+                      <span className={user.estado === "activo" ? "text-success" : "text-danger"}>
+                        {user.estado}
+                      </span>
                     </td>
                     <td>
-                      <button onClick={() => handleEdit(user)} className="btn btn-small btn-primary">
+                      <button
+                        onClick={() => handleEdit(user)}
+                        className="btn btn-small btn-primary me-2"
+                      >
                         ✏️ Editar
                       </button>
                       {user.id !== 1 && (
-                        <button onClick={() => handleDelete(user.id)} className="btn btn-small btn-danger">
+                        <button
+                          onClick={() => handleDelete(user.id)}
+                          className="btn btn-small btn-danger"
+                        >
                           🗑️ Eliminar
                         </button>
                       )}

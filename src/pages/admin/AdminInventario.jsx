@@ -30,6 +30,7 @@ export default function AdminInventario() {
 
   return (
     <div className="dashboard-container">
+      {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-header">
           <h2>SITAB</h2>
@@ -54,31 +55,35 @@ export default function AdminInventario() {
           </a>
         </nav>
 
-        <button onClick={handleLogout} className="btn btn-danger" style={{ width: "100%", marginTop: "auto" }}>
+        <button
+          onClick={handleLogout}
+          className="btn btn-danger"
+          style={{ width: "100%", marginTop: "auto" }}
+        >
           🚪 Cerrar Sesión
         </button>
       </aside>
 
+      {/* Contenido principal */}
       <main className="main-content">
-        <header className="top-bar">
-          <h1>Control de Inventario</h1>
+        <header className="top-bar d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+          <h1 className="mb-2 mb-md-0">Control de Inventario</h1>
         </header>
 
         {lowStockItems.length > 0 && (
-          <div className="card alert-warning" style={{ marginBottom: "2rem" }}>
+          <div className="card alert-warning mb-4">
             <h3>⚠️ Alerta de Stock Bajo</h3>
             <p>{lowStockItems.length} productos con stock menor a 10 unidades</p>
           </div>
         )}
 
-        <div className="card" style={{ marginBottom: "2rem" }}>
+        <div className="card">
           <input
             type="text"
             placeholder="Buscar por nombre o código..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="input-field"
-            style={{ marginBottom: "1rem" }}
+            className="input-field mb-3"
           />
 
           <div style={{ overflowX: "auto" }}>

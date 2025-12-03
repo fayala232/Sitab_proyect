@@ -47,61 +47,58 @@ export default function CajeraHistorial() {
 
         <div className="header-right">
           <span className="user-role">{userName}</span>
-            <button 
-              className="btn-logout"
-              onClick={logout}
-            >
-              Cerrar Sesión
-            </button>
+          <button className="btn-logout" onClick={logout}>
+            Cerrar Sesión
+          </button>
         </div>
       </header>
 
-
-      <div className="container" style={{ padding: "2rem 1rem" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-          <h1>Historial de Ventas del Día</h1>
-          <a href="/cajera" className="btn btn-primary">
+      {/* CONTENIDO PRINCIPAL CON BOOTSTRAP */}
+      <div className="container py-4">
+        {/* Título + botón volver con layout responsivo */}
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+          <h1 className="mb-0">Historial de Ventas del Día</h1>
+          <a href="/cajera" className="btn btn-primary align-self-md-end">
             Volver a Ventas
           </a>
         </div>
 
-        <div className="card">
+        <div className="card p-3">
+          {/* Resumen de totales con grid Bootstrap */}
           <div
+            className="row g-3 mb-3 p-3"
             style={{
-              marginBottom: "1.5rem",
-              padding: "1rem",
               background: "var(--color-muted)",
               borderRadius: "var(--radius)",
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <h3>Total de Ventas Hoy</h3>
-                <p
-                  style={{
-                    fontSize: "2rem",
-                    fontWeight: "bold",
-                    color: "var(--color-primary)",
-                  }}
-                >
-                  ${totalSales.toFixed(2)}
-                </p>
-              </div>
-              <div>
-                <h3>Número de Ventas</h3>
-                <p
-                  style={{
-                    fontSize: "2rem",
-                    fontWeight: "bold",
-                    color: "var(--color-secondary)",
-                  }}
-                >
-                  {salesHistory.length}
-                </p>
-              </div>
+            <div className="col-12 col-md-6">
+              <h3>Total de Ventas Hoy</h3>
+              <p
+                style={{
+                  fontSize: "2rem",
+                  fontWeight: "bold",
+                  color: "var(--color-primary)",
+                }}
+              >
+                ${totalSales.toFixed(2)}
+              </p>
+            </div>
+            <div className="col-12 col-md-6">
+              <h3>Número de Ventas</h3>
+              <p
+                style={{
+                  fontSize: "2rem",
+                  fontWeight: "bold",
+                  color: "var(--color-secondary)",
+                }}
+              >
+                {salesHistory.length}
+              </p>
             </div>
           </div>
 
+          {/* Lista de ventas */}
           <div>
             {salesHistory.length === 0 ? (
               <p
@@ -114,60 +111,69 @@ export default function CajeraHistorial() {
                 No hay ventas registradas hoy
               </p>
             ) : (
-              salesHistory.map((sale) => (
-                <div
-                  key={sale.id}
-                  style={{
-                    border: "1px solid var(--color-border)",
-                    borderRadius: "var(--radius)",
-                    padding: "1rem",
-                    marginBottom: "1rem",
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
-                    <div>
-                      <strong>Venta #{sale.id}</strong>
-                      <p style={{ fontSize: "0.875rem", color: "var(--color-muted-foreground)" }}>
-                        {new Date(sale.fecha).toLocaleString("es-MX")}
-                      </p>
-                    </div>
-                    <div style={{ textAlign: "right" }}>
-                      <p
-                        style={{
-                          fontSize: "1.5rem",
-                          fontWeight: "bold",
-                          color: "var(--color-primary)",
-                        }}
-                      >
-                        ${sale.total.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
+              <div className="row g-3">
+                {salesHistory.map((sale) => (
                   <div
-                    style={{
-                      background: "var(--color-muted)",
-                      padding: "0.75rem",
-                      borderRadius: "var(--radius)",
-                    }}
+                    key={sale.id}
+                    className="col-12"
                   >
-                    {sale.items.map((item) => (
+                    <div
+                      style={{
+                        border: "1px solid var(--color-border)",
+                        borderRadius: "var(--radius)",
+                        padding: "1rem",
+                      }}
+                    >
+                      {/* Encabezado de la venta */}
+                      <div className="d-flex flex-column flex-md-row justify-content-between mb-3">
+                        <div>
+                          <strong>Venta #{sale.id}</strong>
+                          <p
+                            style={{
+                              fontSize: "0.875rem",
+                              color: "var(--color-muted-foreground)",
+                            }}
+                          >
+                            {new Date(sale.fecha).toLocaleString("es-MX")}
+                          </p>
+                        </div>
+                        <div className="text-md-end mt-2 mt-md-0">
+                          <p
+                            style={{
+                              fontSize: "1.5rem",
+                              fontWeight: "bold",
+                              color: "var(--color-primary)",
+                            }}
+                          >
+                            ${sale.total.toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Detalle de productos de la venta */}
                       <div
-                        key={item.id}
                         style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          marginBottom: "0.25rem",
+                          background: "var(--color-muted)",
+                          padding: "0.75rem",
+                          borderRadius: "var(--radius)",
                         }}
                       >
-                        <span>
-                          {item.nombre} x{item.cantidad}
-                        </span>
-                        <span>${(item.precio * item.cantidad).toFixed(2)}</span>
+                        {sale.items.map((item) => (
+                          <div
+                            key={item.id}
+                            className="d-flex justify-content-between mb-1"
+                          >
+                            <span>
+                              {item.nombre} x{item.cantidad}
+                            </span>
+                            <span>${(item.precio * item.cantidad).toFixed(2)}</span>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </div>
         </div>
