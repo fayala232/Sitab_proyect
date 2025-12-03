@@ -127,30 +127,27 @@ export default function CajeraDashboard() {
 
         <div className="header-right">
           <span className="user-role">{userName}</span>
-            <button 
-              className="btn-logout"
-              onClick={logout}
-            >
+          <button className="btn-logout" onClick={logout}>
             Cerrar Sesión
-            </button>
+          </button>
         </div>
       </header>
 
+      {/* CONTENIDO PRINCIPAL CON BOOTSTRAP GRID */}
+      <div className="container py-4">
+        <h1 className="mb-4">Registrar Venta</h1>
 
-      <div className="container" style={{ padding: "2rem 1rem" }}>
-        <h1 style={{ marginBottom: "2rem" }}>Registrar Venta</h1>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: "2rem" }}>
-          {/* Panel de búsqueda y productos */}
-          <div>
-            <div className="card" style={{ marginBottom: "1.5rem" }}>
-              <h2 style={{ marginBottom: "1rem" }}>Buscar Producto</h2>
-              <div style={{ display: "flex", gap: "1rem" }}>
+        {/* Grid principal: izquierda = productos, derecha = venta actual */}
+        <div className="row g-4">
+          {/* Columna izquierda: búsqueda + productos */}
+          <div className="col-12 col-md-7 col-lg-8">
+            <div className="card mb-3">
+              <h2 className="mb-3">Buscar Producto</h2>
+              <div className="d-flex gap-3">
                 <input
                   type="text"
                   placeholder="Buscar por nombre o código..."
-                  className="search-input"
-                  style={{ maxWidth: "100%", flex: 1 }}
+                  className="search-input form-control"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -159,44 +156,57 @@ export default function CajeraDashboard() {
 
             {/* Lista de productos disponibles */}
             <div className="card">
-              <h3 style={{ marginBottom: "1rem" }}>Productos Disponibles</h3>
-              <div className="grid grid-3" style={{ maxHeight: "500px", overflowY: "auto" }}>
+              <h3 className="mb-3">Productos Disponibles</h3>
+              <div
+                className="row g-3"
+                style={{ maxHeight: "500px", overflowY: "auto" }}
+              >
                 {filteredProducts.map((product) => (
                   <div
                     key={product.id}
-                    className="card"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => addToSale(product.id)}
+                    className="col-12 col-sm-6 col-lg-4"
                   >
-                    <div style={{ textAlign: "center", padding: "1rem 0" }}>
-                      <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>{product.icon}</div>
-                      <h4 style={{ marginBottom: "0.5rem" }}>{product.nombre}</h4>
-                      <p
-                        style={{
-                          color: "var(--color-muted-foreground)",
-                          fontSize: "0.875rem",
-                          marginBottom: "0.5rem",
-                        }}
-                      >
-                        Código: {product.codigo}
-                      </p>
-                      <p
-                        style={{
-                          fontSize: "1.25rem",
-                          fontWeight: "bold",
-                          color: "var(--color-primary)",
-                        }}
-                      >
-                        ${product.precio.toFixed(2)}
-                      </p>
-                      <p
-                        style={{
-                          fontSize: "0.875rem",
-                          color: "var(--color-muted-foreground)",
-                        }}
-                      >
-                        Stock: {product.stock}
-                      </p>
+                    <div
+                      className="card h-100"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => addToSale(product.id)}
+                    >
+                      <div style={{ textAlign: "center", padding: "1rem 0" }}>
+                        <div
+                          style={{ fontSize: "2rem", marginBottom: "0.5rem" }}
+                        >
+                          {product.icon}
+                        </div>
+                        <h4 style={{ marginBottom: "0.5rem" }}>
+                          {product.nombre}
+                        </h4>
+                        <p
+                          style={{
+                            color: "var(--color-muted-foreground)",
+                            fontSize: "0.875rem",
+                            marginBottom: "0.5rem",
+                          }}
+                        >
+                          Código: {product.codigo}
+                        </p>
+                        <p
+                          style={{
+                            fontSize: "1.25rem",
+                            fontWeight: "bold",
+                            color: "var(--color-primary)",
+                          }}
+                        >
+                          ${product.precio.toFixed(2)}
+                        </p>
+                        <p
+                          style={{
+                            fontSize: "0.875rem",
+                            color: "var(--color-muted-foreground)",
+                          }}
+                        >
+                          Stock: {product.stock}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -204,12 +214,18 @@ export default function CajeraDashboard() {
             </div>
           </div>
 
-          {/* Panel de venta actual */}
-          <div>
+          {/* Columna derecha: venta actual */}
+          <div className="col-12 col-md-5 col-lg-4">
             <div className="card" style={{ position: "sticky", top: "100px" }}>
-              <h2 style={{ marginBottom: "1rem" }}>Venta Actual</h2>
+              <h2 className="mb-3">Venta Actual</h2>
 
-              <div style={{ maxHeight: "300px", overflowY: "auto", marginBottom: "1rem" }}>
+              <div
+                style={{
+                  maxHeight: "300px",
+                  overflowY: "auto",
+                  marginBottom: "1rem",
+                }}
+              >
                 {currentSale.length === 0 ? (
                   <p
                     style={{
@@ -243,7 +259,13 @@ export default function CajeraDashboard() {
                           ${item.precio.toFixed(2)} c/u
                         </div>
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.5rem",
+                        }}
+                      >
                         <button
                           onClick={() => updateQuantity(item.id, -1)}
                           className="btn"
@@ -251,7 +273,14 @@ export default function CajeraDashboard() {
                         >
                           -
                         </button>
-                        <span style={{ minWidth: "30px", textAlign: "center" }}>{item.cantidad}</span>
+                        <span
+                          style={{
+                            minWidth: "30px",
+                            textAlign: "center",
+                          }}
+                        >
+                          {item.cantidad}
+                        </span>
                         <button
                           onClick={() => updateQuantity(item.id, 1)}
                           className="btn"
@@ -271,7 +300,13 @@ export default function CajeraDashboard() {
                           ×
                         </button>
                       </div>
-                      <div style={{ minWidth: "80px", textAlign: "right", fontWeight: "bold" }}>
+                      <div
+                        style={{
+                          minWidth: "80px",
+                          textAlign: "right",
+                          fontWeight: "bold",
+                        }}
+                      >
                         ${(item.precio * item.cantidad).toFixed(2)}
                       </div>
                     </div>
@@ -279,8 +314,20 @@ export default function CajeraDashboard() {
                 )}
               </div>
 
-              <div style={{ borderTop: "2px solid var(--color-border)", paddingTop: "1rem", marginTop: "1rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+              <div
+                style={{
+                  borderTop: "2px solid var(--color-border)",
+                  paddingTop: "1rem",
+                  marginTop: "1rem",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: "0.5rem",
+                  }}
+                >
                   <span>Subtotal:</span>
                   <span>${total.toFixed(2)}</span>
                 </div>
@@ -294,7 +341,9 @@ export default function CajeraDashboard() {
                   }}
                 >
                   <span>Total:</span>
-                  <span style={{ color: "var(--color-primary)" }}>${total.toFixed(2)}</span>
+                  <span style={{ color: "var(--color-primary)" }}>
+                    ${total.toFixed(2)}
+                  </span>
                 </div>
 
                 <button
@@ -304,7 +353,11 @@ export default function CajeraDashboard() {
                 >
                   Completar Venta
                 </button>
-                <button onClick={cancelSale} className="btn btn-outline" style={{ width: "100%" }}>
+                <button
+                  onClick={cancelSale}
+                  className="btn btn-outline"
+                  style={{ width: "100%" }}
+                >
                   Cancelar Venta
                 </button>
               </div>
