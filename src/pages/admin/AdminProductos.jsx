@@ -1,15 +1,22 @@
 "use client"
 
-import { useState } from "react"
+//import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { products } from "../../lib/product-data"
+//import logo from "../../assets/SITABCANASTA.png"
+//import { products } from "../../lib/product-data"
+import { fetchProductos } from "../../lib/api"   // <-- en vez de products del JSON
 import "../../sitab.css"
 
 export default function AdminProductos() {
   const navigate = useNavigate()
-  const [productList, setProductList] = useState(products)
+  //const [productList, setProductList] = useState(products)
+  //const [searchTerm, setSearchTerm] = useState("")
+  const [productList, setProductList] = useState([])       // ahora empieza vacío
   const [searchTerm, setSearchTerm] = useState("")
   const [filterCategory, setFilterCategory] = useState("all")
+  const [loading, setLoading] = useState(true)             // NUEVO
+  const [error, setError] = useState("")                   // NUEVO
   const [showModal, setShowModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
   const [formData, setFormData] = useState({
@@ -20,6 +27,23 @@ export default function AdminProductos() {
     categoria: "",
     proveedor: "",
   })
+
+  useEffect(() => {
+  const cargarProductos = async () => {
+    try {
+      const prods = await fetchProductos()
+      setProductList(prods)
+    } catch (err) {
+      console.error(err)
+      setError("No se pudieron cargar los productos")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  cargarProductos()
+}, [])
+
 
   const handleLogout = () => {
     localStorage.removeItem("userRole")
@@ -81,6 +105,18 @@ export default function AdminProductos() {
         <div className="admin-container">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
             <h1 className="page-title">Gestión de Productos</h1>
+            {loading && (
+              <p className="text-muted" style={{ marginBottom: "0.5rem" }}>
+                Cargando productos...
+              </p>
+              )}
+
+            {error && (
+              <p className="text-danger" style={{ marginBottom: "0.5rem" }}>
+                {error}
+              </p>
+              )}
+
             <div style={{ display: "flex", gap: "1rem" }}>
               <button
                 onClick={() => {

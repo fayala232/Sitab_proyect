@@ -2,21 +2,50 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { products } from "../../lib/product-data"
+//import { products } from "../../lib/product-data"
+import { fetchProductos, actualizarStock, registrarVenta } from "../../lib/api" 
 
 export default function CajeraDashboard() {
   const navigate = useNavigate()
   const [currentSale, setCurrentSale] = useState([])
   const [searchTerm, setSearchTerm] = useState("")
   const [userName, setUserName] = useState("")
+  const [products, setProducts] = useState([])   // productos desde la BD
+  const [loading, setLoading] = useState(true)   // para “cargando…”
+  const [error, setError] = useState("")         // para errores
 
-  useEffect(() => {
+
+  /*useEffect(() => {
     const userRole = localStorage.getItem("userRole")
     if (userRole !== "cajera") {
       navigate("/")
     }
     setUserName(localStorage.getItem("userName") || "Cajera")
-  }, [navigate])
+  }, [navigate])*/
+  useEffect(() => {
+  const userRole = localStorage.getItem("userRole")
+  if (userRole !== "cajera") {
+    navigate("/")
+    return
+  }
+
+  setUserName(localStorage.getItem("userName") || "Cajera")
+
+  const cargarProductos = async () => {
+    try {
+      const prods = await fetchProductos()
+      setProducts(prods)
+    } catch (err) {
+      console.error(err)
+      setError("No se pudieron cargar los productos")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  cargarProductos()
+}, [navigate])
+
 
   const filteredProducts = searchTerm
     ? products.filter(
@@ -71,7 +100,7 @@ export default function CajeraDashboard() {
     }
   }
 
-  const completeSale = () => {
+  /*const completeSale = () => {
     if (currentSale.length === 0) {
       alert("No hay productos en la venta")
       return
@@ -98,7 +127,67 @@ export default function CajeraDashboard() {
 
     alert(`Venta completada por $${total.toFixed(2)}`)
     setCurrentSale([])
+  }*/
+ const completeSale = async () => {
+  if (currentSale.length === 0) {
+    alert("No hay productos en la venta")
+    return
   }
+
+  try {
+    // 1) Descontar stock en BD (ya lo teníamos)
+    const itemsParaActualizar = currentSale.map((item) => ({
+      id: item.id,
+      cantidad: item.cantidad,
+    }))
+    await actualizarStock(itemsParaActualizar)
+
+    // 2) Calcular total
+    const total = currentSale.reduce(
+      (sum, item) => sum + item.precio * item.cantidad,
+      0
+    )
+
+    // 3) Registrar venta en la BD
+    await registrarVenta({
+      cajera: userName,
+      items: currentSale.map((item) => ({
+        id: item.id,
+        nombre: item.nombre,
+        cantidad: item.cantidad,
+        precio: item.precio,
+      })),
+      total,
+    })
+
+    // 4) (Opcional) seguir usando localStorage para compatibilidad
+    const sales = JSON.parse(localStorage.getItem("sales") || "[]")
+    sales.push({
+      id: Date.now(),
+      fecha: new Date().toISOString(),
+      cajera: userName,
+      items: currentSale,
+      total: total,
+    })
+    localStorage.setItem("sales", JSON.stringify(sales))
+
+    // 5) Actualizar estado local de productos
+    setProducts((prev) =>
+      prev.map((p) => {
+        const vendido = currentSale.find((item) => item.id === p.id)
+        if (!vendido) return p
+        return { ...p, stock: p.stock - vendido.cantidad }
+      })
+    )
+
+    alert(`Venta completada por $${total.toFixed(2)}`)
+    setCurrentSale([])
+  } catch (err) {
+    console.error(err)
+    alert(err.message || "Error al completar la venta")
+  }
+}
+
 
   const cancelSale = () => {
     if (confirm("¿Estás seguro de cancelar esta venta?")) {
@@ -139,6 +228,18 @@ export default function CajeraDashboard() {
 
       <div className="container" style={{ padding: "2rem 1rem" }}>
         <h1 className="mb-0 titulo-interno">Registrar Venta</h1>
+
+            {loading && (
+              <p className="text-muted" style={{ marginBottom: "1rem" }}>
+                Cargando productos...
+              </p>
+            )}
+
+            {error && (
+              <p className="text-danger" style={{ marginBottom: "1rem" }}>
+                {error}
+              </p>
+            )}
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: "2rem" }}>
           {/* Panel de búsqueda y productos */}

@@ -2,18 +2,24 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { products } from "../../lib/product-data"
+//import { products } from "../../lib/product-data"
 import "../../sitab.css"
+import { fetchProductos } from "../../lib/api"; // <-- CAMBIO: ahora leemos de PHP
 
 export default function AdminDashboard() {
+  const [userName, setUserName] = useState("Administrador");
+  const [products, setProducts] = useState([]);      // <-- productos desde la BD
+  const [loading, setLoading] = useState(true);      // <-- estado de carga
+  const [error, setError] = useState("");            // <-- mensaje de error si falla
   const navigate = useNavigate()
-  const [userName, setUserName] = useState("")
+  //const [userName, setUserName] = useState("")
 
-  useEffect(() => {
+ /* useEffect(() => {
     const name = localStorage.getItem("userName")
     setUserName(name || "Administrador")
   }, [])
 
+  
   const handleLogout = () => {
     localStorage.removeItem("userRole")
     localStorage.removeItem("userName")
@@ -23,7 +29,38 @@ export default function AdminDashboard() {
   const totalProducts = products.length
   const lowStockProducts = products.filter((p) => p.stock < 10).length
   //const totalValue = products.reduce((sum, p) => sum + p.precio * p.stock, 0).toFixed(2)
+  const salestoday = "$0.00"*/
+// Cargar nombre del usuario y productos desde la BD
+   useEffect(() => {
+    const name = localStorage.getItem("userName")
+    setUserName(name || "Administrador")
+
+    const cargarProductos = async () => {
+      try {
+        const prods = await fetchProductos()
+        setProducts(prods)
+      } catch (err) {
+        console.error(err)
+        setError("No se pudieron cargar los productos")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    cargarProductos()
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("userName");
+    navigate("/");
+  };
+
+  // --- Métricas calculadas a partir de los productos de la BD ---
+  const totalProducts = products.length
+  const lowStockProducts = products.filter((p) => p.stock < 10).length
   const salestoday = "$0.00"
+
 
   return (
     <div className="admin-dashboard-wrapper">
@@ -47,6 +84,18 @@ export default function AdminDashboard() {
       <main className="admin-main">
         <div className="admin-container">
           <h1 className="mb-0 titulo-interno">Panel de Administración</h1>
+
+          {loading && (
+          <p className="text-muted" style={{ marginBottom: "1rem" }}>
+            Cargando productos...
+          </p>
+          )}
+
+          {error && (
+          <p className="text-danger" style={{ marginBottom: "1rem" }}>
+          {error}
+          </p>
+          )}
 
           <div className="stats-grid-4">
             <div className="stat-card">

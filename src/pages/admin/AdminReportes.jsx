@@ -1,21 +1,42 @@
 "use client"
 
 //import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { products } from "../../lib/product-data"
+//import { products } from "../../lib/product-data"
+import { fetchProductos } from "../../lib/api"
 import "../../sitab.css"
 
 export default function AdminReportes() {
   const navigate = useNavigate()
   //const [filterType, setFilterType] = useState("todos")
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
   const handleLogout = () => {
     localStorage.removeItem("userRole")
     localStorage.removeItem("userName")
     navigate("/")
   }
+    useEffect(() => {
+    const cargarProductos = async () => {
+      try {
+        const prods = await fetchProductos()
+        setProducts(prods)
+      } catch (err) {
+        console.error(err)
+        setError("No se pudieron cargar los datos de inventario")
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  const totalProducts = products.length
+    cargarProductos()
+  }, [])
+
+
+  /*const totalProducts = products.length
   const totalValue = products.reduce((sum, p) => sum + p.precio * p.stock, 0)
   const averagePrice = (products.reduce((sum, p) => sum + p.precio, 0) / totalProducts).toFixed(2)
   const averageStock = (products.reduce((sum, p) => sum + p.stock, 0) / totalProducts).toFixed(2)
@@ -24,7 +45,36 @@ export default function AdminReportes() {
   const byCategory = {}
   products.forEach((p) => {
     byCategory[p.categoria] = (byCategory[p.categoria] || 0) + 1
+  })*/
+
+      const totalProducts = products.length
+
+  const totalValue = products.reduce(
+    (sum, p) => sum + p.precio * p.stock,
+    0
+  )
+
+  const averagePrice =
+    totalProducts > 0
+      ? (
+          products.reduce((sum, p) => sum + p.precio, 0) / totalProducts
+        ).toFixed(2)
+      : "0.00"
+
+  const averageStock =
+    totalProducts > 0
+      ? (
+          products.reduce((sum, p) => sum + p.stock, 0) / totalProducts
+        ).toFixed(2)
+      : "0.00"
+
+  const lowStockCount = products.filter((p) => p.stock < 10).length
+
+  const byCategory = {}
+  products.forEach((p) => {
+    byCategory[p.categoria] = (byCategory[p.categoria] || 0) + 1
   })
+
 
   return (
     <div className="dashboard-container">
@@ -61,7 +111,17 @@ export default function AdminReportes() {
         <header className="top-bar">
           <h1 className="titulo-interno">Reportes y Análisis</h1>
         </header>
+        {loading && (
+          <p className="text-muted" style={{ marginBottom: "1rem" }}>
+            Cargando datos...
+          </p>
+        )}
 
+        {error && (
+          <p className="text-danger" style={{ marginBottom: "1rem" }}>
+            {error}
+          </p>
+        )}
         <div className="dashboard-grid">
           <div className="card stats-card">
             <h3>Productos Totales</h3>

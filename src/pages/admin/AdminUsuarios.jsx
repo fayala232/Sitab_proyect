@@ -1,19 +1,42 @@
 "use client"
 
-import { useState } from "react"
+//import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import "../../sitab.css"
+import { fetchUsuarios, createUsuario, updateUsuario, deleteUsuario } from "../../lib/api"
 
 export default function AdminUsuarios() {
   const navigate = useNavigate()
-  const [users, setUsers] = useState([
+  /*const [users, setUsers] = useState([
     { id: 1, usuario: "admin", nombre: "Administrador", rol: "admin", estado: "activo" },
     { id: 2, usuario: "caja1", nombre: "Cajera 1", rol: "cajera", estado: "activo" },
     { id: 3, usuario: "caja2", nombre: "Cajera 2", rol: "cajera", estado: "activo" },
-  ])
+  ])*/
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+  const cargarUsuarios = async () => {
+    try {
+      const lista = await fetchUsuarios()
+      setUsers(lista)
+    } catch (err) {
+      console.error(err)
+      setError("No se pudieron cargar los usuarios")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  cargarUsuarios()
+}, [])
+
+
   const [showModal, setShowModal] = useState(false)
   const [editingUser, setEditingUser] = useState(null)
-  const [formData, setFormData] = useState({ usuario: "", nombre: "", rol: "cajera", estado: "activo" })
+  const [formData, setFormData] = useState({ usuario: "", nombre: "", rol: "cajera", estado: "activo", password: "", })
 
   const handleLogout = () => {
     localStorage.removeItem("userRole")
@@ -23,11 +46,12 @@ export default function AdminUsuarios() {
 
   const handleEdit = (user) => {
     setEditingUser(user)
-    setFormData(user)
+    //setFormData(user)
+    setFormData({...user,password: "", })// siempre vacío al editar, la escribes solo si quieres cambiarla
     setShowModal(true)
   }
 
-  const handleSave = () => {
+  /*const handleSave = () => {
     if (editingUser) {
       setUsers(users.map((u) => (u.id === editingUser.id ? { ...formData, id: u.id } : u)))
     } else {
@@ -37,10 +61,65 @@ export default function AdminUsuarios() {
     setFormData({ usuario: "", nombre: "", rol: "cajera", estado: "activo" })
     setEditingUser(null)
   }
+ 
 
   const handleDelete = (id) => {
     if (id !== 1) setUsers(users.filter((u) => u.id !== id))
+  }*/
+
+   const handleSave = async () => {
+  const usuarioData = {
+    id: editingUser?.id,
+    usuario: formData.usuario,
+    nombre: formData.nombre,
+    rol: formData.rol,
+    estado: formData.estado,
+    password: formData.password,   // 👈 IMPORTANTE
   }
+
+  try {
+    if (editingUser) {
+      await updateUsuario(usuarioData)
+      setUsers((prev) =>
+        prev.map((u) => (u.id === editingUser.id ? { ...u, ...usuarioData } : u))
+      )
+    } else {
+      const nuevo = await createUsuario(usuarioData)
+      setUsers((prev) => [...prev, nuevo])
+    }
+
+    setShowModal(false)
+    setEditingUser(null)
+    setFormData({
+      usuario: "",
+      nombre: "",
+      rol: "cajera",
+      estado: "activo",
+      password: "",
+    })
+  } catch (err) {
+    console.error(err)
+    alert(err.message)
+  }
+}
+    const handleDelete = async (id) => {
+  if (id === 1) {
+    alert("No se puede desactivar al administrador principal")
+    return
+  }
+
+  if (!window.confirm("¿Seguro que deseas desactivar este usuario?")) return
+
+  try {
+    await deleteUsuario(id)
+    setUsers((prev) => prev.filter((u) => u.id !== id))
+  } catch (err) {
+    console.error(err)
+    alert(err.message)
+  }
+}
+
+
 
   return (
     <div className="dashboard-container">
@@ -76,11 +155,23 @@ export default function AdminUsuarios() {
       <main className="main-content">
         <header className="top-bar">
           <h1>Gestión de Usuarios</h1>
+          {loading && (
+            <p className="text-muted" style={{ marginBottom: "0.5rem" }}>
+              Cargando usuarios...
+            </p>
+          )}
+
+          {error && (
+            <p className="text-danger" style={{ marginBottom: "0.5rem" }}>
+              {error}
+            </p>
+          )}
+
           <div className="user-info">
             <button
               onClick={() => {
                 setEditingUser(null)
-                setFormData({ usuario: "", nombre: "", rol: "cajera", estado: "activo" })
+                setFormData({ usuario: "", nombre: "", rol: "cajera", estado: "activo",password: "",})
                 setShowModal(true)
               }}
               className="btn btn-success"
@@ -154,6 +245,15 @@ export default function AdminUsuarios() {
                     type="text"
                     value={formData.nombre}
                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                    className="input-field"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Contraseña</label>
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     className="input-field"
                   />
                 </div>

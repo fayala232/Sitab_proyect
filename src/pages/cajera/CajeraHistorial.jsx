@@ -2,14 +2,18 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+import { fetchVentasHoy } from "../../lib/api"
 
 export default function CajeraHistorial() {
   const navigate = useNavigate()
   const [salesHistory, setSalesHistory] = useState([])
   const [userName, setUserName] = useState("")
   const [totalSales, setTotalSales] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
-  useEffect(() => {
+
+  /*useEffect(() => {
     const userRole = localStorage.getItem("userRole")
     if (userRole !== "cajera") {
       navigate("/")
@@ -17,6 +21,8 @@ export default function CajeraHistorial() {
     setUserName(localStorage.getItem("userName") || "Cajera")
     loadSalesHistory()
   }, [navigate])
+
+  
 
   const loadSalesHistory = () => {
     const sales = JSON.parse(localStorage.getItem("sales") || "[]")
@@ -26,7 +32,34 @@ export default function CajeraHistorial() {
     const total = todaySales.reduce((sum, sale) => sum + sale.total, 0)
     setTotalSales(total)
     setSalesHistory(todaySales.reverse())
+  }*/
+ useEffect(() => {
+  const userRole = localStorage.getItem("userRole")
+  if (userRole !== "cajera") {
+    navigate("/")
+    return
   }
+
+  setUserName(localStorage.getItem("userName") || "Cajera")
+
+  const cargarVentas = async () => {
+    try {
+      const ventas = await fetchVentasHoy()
+      setSalesHistory(ventas)
+
+      const total = ventas.reduce((sum, v) => sum + v.total, 0)
+      setTotalSales(total)
+    } catch (err) {
+      console.error(err)
+      setError("No se pudieron cargar las ventas")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  cargarVentas()
+}, [navigate])
+
 
   const logout = () => {
     localStorage.removeItem("userRole")
@@ -60,6 +93,18 @@ export default function CajeraHistorial() {
       <div className="container" style={{ padding: "2rem 1rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
           <h1 className="mb-0 titulo-interno">Historial de Ventas del Día</h1>
+          {loading && (
+            <p className="text-muted" style={{ marginBottom: "0.5rem" }}>
+              Cargando ventas...
+            </p>
+          )}
+
+          {error && (
+            <p className="text-danger" style={{ marginBottom: "0.5rem" }}>
+              {error}
+            </p>
+          )}
+
           <a href="/cajera" className="btn btn-primary btn-interno align-self-md-end">
             Volver a Ventas
           </a>

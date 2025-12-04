@@ -1,14 +1,36 @@
 "use client"
 
-import { useState } from "react"
+//import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { products } from "../../lib/product-data"
+//import { products } from "../../lib/product-data"
+import { fetchProductos } from "../../lib/api"
 import "../../sitab.css"
 
 export default function AdminInventario() {
   const navigate = useNavigate()
-  const [inventory, setInventory] = useState(products)
+  const [inventory, setInventory] = useState([])   // se llenará desde la BD
   const [searchTerm, setSearchTerm] = useState("")
+  const [loading, setLoading] = useState(true)     // NUEVO
+  const [error, setError] = useState("")           // NUEVO
+  //const [inventory, setInventory] = useState(products)
+  //const [searchTerm, setSearchTerm] = useState("")
+
+  useEffect(() => {
+    const cargarProductos = async () => {
+      try {
+        const prods = await fetchProductos()
+        setInventory(prods)
+      } catch (err) {
+        console.error(err)
+        setError("No se pudo cargar el inventario")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    cargarProductos()
+  }, [])
 
   const handleLogout = () => {
     localStorage.removeItem("userRole")
@@ -63,6 +85,18 @@ export default function AdminInventario() {
         <header className="top-bar">
           <h1>Control de Inventario</h1>
         </header>
+
+        {loading && (
+          <p className="text-muted" style={{ marginBottom: "1rem" }}>
+            Cargando inventario...
+          </p>
+        )}
+
+        {error && (
+          <p className="text-danger" style={{ marginBottom: "1rem" }}>
+            {error}
+          </p>
+        )}
 
         {lowStockItems.length > 0 && (
           <div className="card alert-warning" style={{ marginBottom: "2rem" }}>
