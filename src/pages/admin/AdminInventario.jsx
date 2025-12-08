@@ -1,20 +1,16 @@
 "use client"
 
-//import { useState } from "react"
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-//import { products } from "../../lib/product-data"
-import { fetchProductos } from "../../lib/api"
+import { fetchProductos, ajustarStockAdmin } from "../../lib/api"
 import "../../sitab.css"
 
 export default function AdminInventario() {
   const navigate = useNavigate()
-  const [inventory, setInventory] = useState([])   // se llenará desde la BD
+  const [inventory, setInventory] = useState([])   
   const [searchTerm, setSearchTerm] = useState("")
-  const [loading, setLoading] = useState(true)     // NUEVO
-  const [error, setError] = useState("")           // NUEVO
-  //const [inventory, setInventory] = useState(products)
-  //const [searchTerm, setSearchTerm] = useState("")
+  const [loading, setLoading] = useState(true)     
+  const [error, setError] = useState("")           
 
   useEffect(() => {
     const cargarProductos = async () => {
@@ -44,9 +40,30 @@ export default function AdminInventario() {
       item.codigo.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
-  const handleUpdateStock = (id, newStock) => {
-    setInventory(inventory.map((item) => (item.id === id ? { ...item, stock: Math.max(0, newStock) } : item)))
+  const handleUpdateStock = async (id, newStock) => {
+  try {
+    const finalStock = Math.max(0, newStock)
+
+    const productoActual = inventory.find((item) => item.id === id)
+    if (!productoActual) return
+
+    const stockActual = productoActual.stock
+    const delta = finalStock - stockActual 
+
+    if (delta === 0) return
+
+    await ajustarStockAdmin(id, delta)
+
+    setInventory((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, stock: finalStock } : item
+      )
+    )
+  } catch (err) {
+    console.error(err)
+    alert(err.message || "Error al ajustar stock")
   }
+}
 
   const lowStockItems = inventory.filter((item) => item.stock < 10)
 

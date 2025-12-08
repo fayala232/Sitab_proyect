@@ -2,43 +2,36 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-//import { products } from "../../lib/product-data"
 import "../../sitab.css"
-import { fetchProductos } from "../../lib/api"; // <-- CAMBIO: ahora leemos de PHP
+import { fetchProductos, fetchVentasHoy, fetchUsuarios  } from "../../lib/api";
 
 export default function AdminDashboard() {
   const [userName, setUserName] = useState("Administrador");
-  const [products, setProducts] = useState([]);      // <-- productos desde la BD
-  const [loading, setLoading] = useState(true);      // <-- estado de carga
-  const [error, setError] = useState("");            // <-- mensaje de error si falla
+  const [products, setProducts] = useState([]);      
+  const [loading, setLoading] = useState(true);      
+  const [error, setError] = useState("");            
   const navigate = useNavigate()
-  //const [userName, setUserName] = useState("")
 
- /* useEffect(() => {
-    const name = localStorage.getItem("userName")
-    setUserName(name || "Administrador")
-  }, [])
-
-  
-  const handleLogout = () => {
-    localStorage.removeItem("userRole")
-    localStorage.removeItem("userName")
-    navigate("/")
-  }
-
-  const totalProducts = products.length
-  const lowStockProducts = products.filter((p) => p.stock < 10).length
-  //const totalValue = products.reduce((sum, p) => sum + p.precio * p.stock, 0).toFixed(2)
-  const salestoday = "$0.00"*/
-// Cargar nombre del usuario y productos desde la BD
+  const [salesToday, setSalesToday] = useState(0) 
+  const [totalUsers, setTotalUsers] = useState(0) 
    useEffect(() => {
-    const name = localStorage.getItem("userName")
-    setUserName(name || "Administrador")
+    const storedName = localStorage.getItem("userName")
+    setUserName(storedName || "Administrador")
 
     const cargarProductos = async () => {
       try {
-        const prods = await fetchProductos()
+        const [prods, ventas, usuarios] = await Promise.all([
+          fetchProductos(),
+          fetchVentasHoy(),
+          fetchUsuarios(),
+        ])
+
         setProducts(prods)
+
+        const totalVentasHoy = ventas.reduce((sum, v) => sum + v.total, 0)
+        setSalesToday(totalVentasHoy)
+
+        setTotalUsers(usuarios.length)
       } catch (err) {
         console.error(err)
         setError("No se pudieron cargar los productos")
@@ -56,10 +49,8 @@ export default function AdminDashboard() {
     navigate("/");
   };
 
-  // --- Métricas calculadas a partir de los productos de la BD ---
   const totalProducts = products.length
   const lowStockProducts = products.filter((p) => p.stock < 10).length
-  const salestoday = "$0.00"
 
 
   return (
@@ -100,7 +91,7 @@ export default function AdminDashboard() {
           <div className="stats-grid-4">
             <div className="stat-card">
               <div className="stat-label">Ventas Hoy</div>
-              <div className="stat-value">{salestoday}</div>
+              <div className="stat-value">${salesToday.toFixed(2)}</div>
             </div>
             <div className="stat-card">
               <div className="stat-label">Productos</div>
@@ -116,7 +107,7 @@ export default function AdminDashboard() {
             </div>
             <div className="stat-card">
               <div className="stat-label">Usuarios</div>
-              <div className="stat-value">3</div>
+              <div className="stat-value">{totalUsers}</div>
             </div>
           </div>
 

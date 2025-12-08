@@ -1,6 +1,5 @@
 "use client"
 
-//import { useState } from "react"
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import "../../sitab.css"
@@ -8,11 +7,6 @@ import { fetchUsuarios, createUsuario, updateUsuario, deleteUsuario } from "../.
 
 export default function AdminUsuarios() {
   const navigate = useNavigate()
-  /*const [users, setUsers] = useState([
-    { id: 1, usuario: "admin", nombre: "Administrador", rol: "admin", estado: "activo" },
-    { id: 2, usuario: "caja1", nombre: "Cajera 1", rol: "cajera", estado: "activo" },
-    { id: 3, usuario: "caja2", nombre: "Cajera 2", rol: "cajera", estado: "activo" },
-  ])*/
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -46,26 +40,9 @@ export default function AdminUsuarios() {
 
   const handleEdit = (user) => {
     setEditingUser(user)
-    //setFormData(user)
-    setFormData({...user,password: "", })// siempre vacío al editar, la escribes solo si quieres cambiarla
+    setFormData({...user,password: "", })
     setShowModal(true)
   }
-
-  /*const handleSave = () => {
-    if (editingUser) {
-      setUsers(users.map((u) => (u.id === editingUser.id ? { ...formData, id: u.id } : u)))
-    } else {
-      setUsers([...users, { ...formData, id: Math.max(...users.map((u) => u.id), 0) + 1 }])
-    }
-    setShowModal(false)
-    setFormData({ usuario: "", nombre: "", rol: "cajera", estado: "activo" })
-    setEditingUser(null)
-  }
- 
-
-  const handleDelete = (id) => {
-    if (id !== 1) setUsers(users.filter((u) => u.id !== id))
-  }*/
 
    const handleSave = async () => {
   const usuarioData = {
@@ -74,7 +51,7 @@ export default function AdminUsuarios() {
     nombre: formData.nombre,
     rol: formData.rol,
     estado: formData.estado,
-    password: formData.password,   // 👈 IMPORTANTE
+    password: formData.password,
   }
 
   try {
@@ -108,7 +85,7 @@ export default function AdminUsuarios() {
     return
   }
 
-  if (!window.confirm("¿Seguro que deseas desactivar este usuario?")) return
+ if (!window.confirm("¿Seguro que deseas eliminar este usuario?")) return
 
   try {
     await deleteUsuario(id)

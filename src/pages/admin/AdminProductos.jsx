@@ -1,22 +1,23 @@
-"use client"
-
-//import { useState } from "react"
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-//import logo from "../../assets/SITABCANASTA.png"
-//import { products } from "../../lib/product-data"
-import { fetchProductos } from "../../lib/api"   // <-- en vez de products del JSON
+import { fetchProductos, createProducto, updateProducto, deleteProducto } from "../../lib/api"   // <-- en vez de products del JSON
 import "../../sitab.css"
+
+const iconOptions = [
+  { label: "Arroz Blanco 1kg", value: "/productos/Arroz_Blanco.png" },
+  { label: "Frijol Pinto 1kg", value: "/productos/Frijol_pinto.png" },
+  { label: "Azúcar Morena 1kg", value: "/productos/Azucar_Morena.png" },
+  { label: "Leche Entera 1L", value: "/productos/Leche_Entera.png"},
+  { label: "Huevo Blanco 12 pzas", value: "/productos/Huevos_12pzas.png"},
+]
 
 export default function AdminProductos() {
   const navigate = useNavigate()
-  //const [productList, setProductList] = useState(products)
-  //const [searchTerm, setSearchTerm] = useState("")
-  const [productList, setProductList] = useState([])       // ahora empieza vacío
+  const [productList, setProductList] = useState([])       
   const [searchTerm, setSearchTerm] = useState("")
   const [filterCategory, setFilterCategory] = useState("all")
-  const [loading, setLoading] = useState(true)             // NUEVO
-  const [error, setError] = useState("")                   // NUEVO
+  const [loading, setLoading] = useState(true)            
+  const [error, setError] = useState("")                 
   const [showModal, setShowModal] = useState(false)
   const [editingProduct, setEditingProduct] = useState(null)
   const [formData, setFormData] = useState({
@@ -26,6 +27,7 @@ export default function AdminProductos() {
     stock: "",
     categoria: "",
     proveedor: "",
+    icon: "",
   })
 
   useEffect(() => {
@@ -67,20 +69,50 @@ export default function AdminProductos() {
     setShowModal(true)
   }
 
-  const handleSave = () => {
-    if (editingProduct) {
-      setProductList(productList.map((p) => (p.id === editingProduct.id ? { ...formData, id: p.id } : p)))
-    } else {
-      setProductList([...productList, { ...formData, id: Math.max(...productList.map((p) => p.id)) + 1 }])
-    }
-    setShowModal(false)
-    setFormData({ codigo: "", nombre: "", precio: "", stock: "", categoria: "", proveedor: "" })
-    setEditingProduct(null)
+  const handleSave = async () => {
+  const productoData = {
+    id: editingProduct?.id,
+    codigo: formData.codigo,
+    nombre: formData.nombre,
+    precio: parseFloat(formData.precio),
+    stock: parseInt(formData.stock),
+    categoria: formData.categoria,
+    proveedor: formData.proveedor, 
+    icon: formData.icon,   
   }
 
-  const handleDelete = (id) => {
-    setProductList(productList.filter((p) => p.id !== id))
+  try {
+    if (editingProduct) {
+      await updateProducto(productoData)
+
+      setProductList(prev =>
+        prev.map(p => p.id === productoData.id ? { ...p, ...productoData } : p)
+      )
+    } else {
+      const nuevo = await createProducto(productoData)
+      setProductList(prev => [...prev, nuevo])
+    }
+
+    setShowModal(false)
+    setEditingProduct(null)
+  } catch (err) {
+    alert(err.message)
   }
+}
+
+
+  const handleDelete = async (id) => {
+  if (!window.confirm("¿Eliminar producto?")) return
+
+  try {
+    await deleteProducto(id)
+    setProductList(prev => prev.filter(p => p.id !== id))
+  } catch (err) {
+    alert(err.message)
+  }
+}
+
+
 
   return (
     <div className="admin-dashboard-wrapper">
@@ -121,7 +153,7 @@ export default function AdminProductos() {
               <button
                 onClick={() => {
                   setEditingProduct(null)
-                  setFormData({ codigo: "", nombre: "", precio: "", stock: "", categoria: "", proveedor: "" })
+                  setFormData({ codigo: "", nombre: "", precio: "", stock: "", categoria: "", proveedor: "", icon: "" })
                   setShowModal(true)
                 }}
                 className="btn btn-success"
@@ -262,6 +294,22 @@ export default function AdminProductos() {
                       className="input-field"
                     />
                   </div>
+                  <div className="form-group">
+                      <label>Imagen  del producto</label>
+                      <select
+                        className="input-field"
+                        value={formData.icon}
+                         onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                      >
+                      <option value="">-- Selecciona una imagen --</option>
+                         {iconOptions.map((opt) => (
+                       <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                      </option>
+                          ))}
+                      </select>
+                  </div>
+                  
                 </div>
                 <div className="modal-footer">
                   <button onClick={() => setShowModal(false)} className="btn btn-secondary">

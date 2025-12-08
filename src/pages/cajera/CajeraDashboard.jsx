@@ -2,57 +2,48 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-//import { products } from "../../lib/product-data"
-import { fetchProductos, actualizarStock, registrarVenta } from "../../lib/api" 
+import { fetchProductos, actualizarStock, registrarVenta } from "../../lib/api"
 
 export default function CajeraDashboard() {
   const navigate = useNavigate()
   const [currentSale, setCurrentSale] = useState([])
   const [searchTerm, setSearchTerm] = useState("")
   const [userName, setUserName] = useState("")
-  const [products, setProducts] = useState([])   // productos desde la BD
-  const [loading, setLoading] = useState(true)   // para “cargando…”
-  const [error, setError] = useState("")         // para errores
+  const [products, setProducts] = useState([])   
+  const [loading, setLoading] = useState(true)   
+  const [error, setError] = useState("")         
 
-
-  /*useEffect(() => {
+  useEffect(() => {
     const userRole = localStorage.getItem("userRole")
     if (userRole !== "cajera") {
       navigate("/")
+      return
     }
+
     setUserName(localStorage.getItem("userName") || "Cajera")
-  }, [navigate])*/
-  useEffect(() => {
-  const userRole = localStorage.getItem("userRole")
-  if (userRole !== "cajera") {
-    navigate("/")
-    return
-  }
 
-  setUserName(localStorage.getItem("userName") || "Cajera")
-
-  const cargarProductos = async () => {
-    try {
-      const prods = await fetchProductos()
-      setProducts(prods)
-    } catch (err) {
-      console.error(err)
-      setError("No se pudieron cargar los productos")
-    } finally {
-      setLoading(false)
+    const cargarProductos = async () => {
+      try {
+        const prods = await fetchProductos()
+        setProducts(prods)
+      } catch (err) {
+        console.error(err)
+        setError("No se pudieron cargar los productos")
+      } finally {
+        setLoading(false)
+      }
     }
-  }
 
-  cargarProductos()
-}, [navigate])
+    cargarProductos()
+  }, [navigate])
 
 
   const filteredProducts = searchTerm
     ? products.filter(
-        (p) =>
-          p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.codigo.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
+      (p) =>
+        p.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.codigo.toLowerCase().includes(searchTerm.toLowerCase()),
+    )
     : products
 
   const addToSale = (productId) => {
@@ -99,94 +90,60 @@ export default function CajeraDashboard() {
       setCurrentSale([...currentSale])
     }
   }
-
-  /*const completeSale = () => {
+  const completeSale = async () => {
     if (currentSale.length === 0) {
       alert("No hay productos en la venta")
       return
     }
 
-    const total = currentSale.reduce((sum, item) => sum + item.precio * item.cantidad, 0)
-
-    const sales = JSON.parse(localStorage.getItem("sales") || "[]")
-    sales.push({
-      id: Date.now(),
-      fecha: new Date().toISOString(),
-      cajera: userName,
-      items: currentSale,
-      total: total,
-    })
-    localStorage.setItem("sales", JSON.stringify(sales))
-
-    currentSale.forEach((item) => {
-      const product = products.find((p) => p.id === item.id)
-      if (product) {
-        product.stock -= item.cantidad
-      }
-    })
-
-    alert(`Venta completada por $${total.toFixed(2)}`)
-    setCurrentSale([])
-  }*/
- const completeSale = async () => {
-  if (currentSale.length === 0) {
-    alert("No hay productos en la venta")
-    return
-  }
-
-  try {
-    // 1) Descontar stock en BD (ya lo teníamos)
-    const itemsParaActualizar = currentSale.map((item) => ({
-      id: item.id,
-      cantidad: item.cantidad,
-    }))
-    await actualizarStock(itemsParaActualizar)
-
-    // 2) Calcular total
-    const total = currentSale.reduce(
-      (sum, item) => sum + item.precio * item.cantidad,
-      0
-    )
-
-    // 3) Registrar venta en la BD
-    await registrarVenta({
-      cajera: userName,
-      items: currentSale.map((item) => ({
+    try {
+      const itemsParaActualizar = currentSale.map((item) => ({
         id: item.id,
-        nombre: item.nombre,
         cantidad: item.cantidad,
-        precio: item.precio,
-      })),
-      total,
-    })
+      }))
+      await actualizarStock(itemsParaActualizar)
 
-    // 4) (Opcional) seguir usando localStorage para compatibilidad
-    const sales = JSON.parse(localStorage.getItem("sales") || "[]")
-    sales.push({
-      id: Date.now(),
-      fecha: new Date().toISOString(),
-      cajera: userName,
-      items: currentSale,
-      total: total,
-    })
-    localStorage.setItem("sales", JSON.stringify(sales))
+      const total = currentSale.reduce(
+        (sum, item) => sum + item.precio * item.cantidad,
+        0
+      )
 
-    // 5) Actualizar estado local de productos
-    setProducts((prev) =>
-      prev.map((p) => {
-        const vendido = currentSale.find((item) => item.id === p.id)
-        if (!vendido) return p
-        return { ...p, stock: p.stock - vendido.cantidad }
+      await registrarVenta({
+        cajera: userName,
+        items: currentSale.map((item) => ({
+          id: item.id,
+          nombre: item.nombre,
+          cantidad: item.cantidad,
+          precio: item.precio,
+        })),
+        total,
       })
-    )
 
-    alert(`Venta completada por $${total.toFixed(2)}`)
-    setCurrentSale([])
-  } catch (err) {
-    console.error(err)
-    alert(err.message || "Error al completar la venta")
+      const sales = JSON.parse(localStorage.getItem("sales") || "[]")
+      sales.push({
+        id: Date.now(),
+        fecha: new Date().toISOString(),
+        cajera: userName,
+        items: currentSale,
+        total: total,
+      })
+      localStorage.setItem("sales", JSON.stringify(sales))
+
+      setProducts((prev) =>
+        prev.map((p) => {
+          const vendido = currentSale.find((item) => item.id === p.id)
+          if (!vendido) return p
+          return { ...p, stock: p.stock - vendido.cantidad }
+        })
+      )
+
+      alert(`Venta completada por $${total.toFixed(2)}`)
+      setCurrentSale([])
+    } catch (err) {
+      console.error(err)
+      alert(err.message || "Error al completar la venta")
+    }
   }
-}
 
 
   const cancelSale = () => {
@@ -216,12 +173,12 @@ export default function CajeraDashboard() {
 
         <div className="header-right">
           <span className="user-role">{userName}</span>
-            <button 
-              className="btn-logout"
-              onClick={logout}
-            >
+          <button
+            className="btn-logout"
+            onClick={logout}
+          >
             Cerrar Sesión
-            </button>
+          </button>
         </div>
       </header>
 
@@ -229,17 +186,17 @@ export default function CajeraDashboard() {
       <div className="container" style={{ padding: "2rem 1rem" }}>
         <h1 className="mb-0 titulo-interno">Registrar Venta</h1>
 
-            {loading && (
-              <p className="text-muted" style={{ marginBottom: "1rem" }}>
-                Cargando productos...
-              </p>
-            )}
+        {loading && (
+          <p className="text-muted" style={{ marginBottom: "1rem" }}>
+            Cargando productos...
+          </p>
+        )}
 
-            {error && (
-              <p className="text-danger" style={{ marginBottom: "1rem" }}>
-                {error}
-              </p>
-            )}
+        {error && (
+          <p className="text-danger" style={{ marginBottom: "1rem" }}>
+            {error}
+          </p>
+        )}
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: "2rem" }}>
           {/* Panel de búsqueda y productos */}
@@ -250,10 +207,28 @@ export default function CajeraDashboard() {
                 <input
                   type="text"
                   placeholder="Buscar por nombre o código..."
-                  className="search-input"
-                  style={{ maxWidth: "100%", flex: 1 }}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.8rem 1rem",
+                    borderRadius: "12px",
+                    border: "1px solid #ddd",
+                    background: "white",
+                    color: "#333",
+                    fontSize: "1rem",
+                    outline: "none",
+                    transition: "all 0.2s ease",
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.boxShadow = "0 0 4px rgba(255,140,0,0.6)";
+                    e.target.style.borderColor = "var(--color-primary)";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.boxShadow = "0 2px 6px rgba(0,0,0,0.05)";
+                    e.target.style.borderColor = "#ddd";
+                  }}
                 />
               </div>
             </div>
@@ -261,48 +236,99 @@ export default function CajeraDashboard() {
             {/* Lista de productos disponibles */}
             <div className="card">
               <h3 style={{ marginBottom: "1rem" }}>Productos Disponibles</h3>
-              <div className="grid grid-3" style={{ maxHeight: "500px", overflowY: "auto" }}>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+                  gap: "1rem",
+                  maxHeight: "500px",
+                  overflowY: "auto",
+                  padding: "0.5rem",
+                }}
+              >
                 {filteredProducts.map((product) => (
                   <div
                     key={product.id}
-                    className="card"
-                    style={{ cursor: "pointer" }}
                     onClick={() => addToSale(product.id)}
+                    style={{
+                      background: "#fff",
+                      borderRadius: "12px",
+                      padding: "1rem",
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+                      textAlign: "center",
+                      cursor: "pointer",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      transition: "transform 0.15s ease, boxShadow 0.15s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "scale(1.03)"
+                      e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.16)"
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "scale(1)"
+                      e.currentTarget.style.boxShadow = "0 2px 6px rgba(0,0,0,0.08)"
+                    }}
                   >
-                    <div style={{ textAlign: "center", padding: "1rem 0" }}>
-                      <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>{product.icon}</div>
-                      <h4 style={{ marginBottom: "0.5rem" }}>{product.nombre}</h4>
-                      <p
-                        style={{
-                          color: "var(--color-muted-foreground)",
-                          fontSize: "0.875rem",
-                          marginBottom: "0.5rem",
-                        }}
-                      >
-                        Código: {product.codigo}
-                      </p>
-                      <p
-                        style={{
-                          fontSize: "1.25rem",
-                          fontWeight: "bold",
-                          color: "var(--color-primary)",
-                        }}
-                      >
-                        ${product.precio.toFixed(2)}
-                      </p>
-                      <p
-                        style={{
-                          fontSize: "0.875rem",
-                          color: "var(--color-muted-foreground)",
-                        }}
-                      >
-                        Stock: {product.stock}
-                      </p>
-                    </div>
+                    <img
+                      src={product.icon || "/productos/default.png"}
+                      alt={product.nombre}
+                      style={{
+                        width: "60px",
+                        height: "60px",
+                        objectFit: "contain",
+                        marginBottom: "0.5rem",
+                      }}
+                    />
+
+                    <h4
+                      style={{
+                        marginBottom: "0.25rem",
+                        fontSize: "1rem",
+                        fontWeight: "600",
+                        color: "#333",
+                      }}
+                    >
+                      {product.nombre}
+                    </h4>
+
+                    <p
+                      style={{
+                        fontSize: "0.8rem",
+                        color: "gray",
+                        marginBottom: "0.25rem",
+                      }}
+                    >
+                      Código: {product.codigo}
+                    </p>
+
+                    <p
+                      style={{
+                        fontSize: "1.1rem",
+                        fontWeight: "bold",
+                        marginBottom: "0.25rem",
+                        color: "var(--color-primary)",
+                      }}
+                    >
+                      ${product.precio.toFixed(2)}
+                    </p>
+
+                    <p
+                      style={{
+                        fontSize: "0.85rem",
+                        color: product.stock > 10 ? "#27ae60" : "#e74c3c",
+                      }}
+                    >
+                      Stock: {product.stock}
+                    </p>
                   </div>
                 ))}
               </div>
             </div>
+
           </div>
 
           {/* Panel de venta actual */}

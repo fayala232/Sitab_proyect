@@ -35,18 +35,6 @@ export default function AdminReportes() {
     cargarProductos()
   }, [])
 
-
-  /*const totalProducts = products.length
-  const totalValue = products.reduce((sum, p) => sum + p.precio * p.stock, 0)
-  const averagePrice = (products.reduce((sum, p) => sum + p.precio, 0) / totalProducts).toFixed(2)
-  const averageStock = (products.reduce((sum, p) => sum + p.stock, 0) / totalProducts).toFixed(2)
-  const lowStockCount = products.filter((p) => p.stock < 10).length
-
-  const byCategory = {}
-  products.forEach((p) => {
-    byCategory[p.categoria] = (byCategory[p.categoria] || 0) + 1
-  })*/
-
       const totalProducts = products.length
 
   const totalValue = products.reduce(
@@ -154,7 +142,7 @@ export default function AdminReportes() {
         </div>
 
         <div className="card" style={{ marginTop: "2rem" }}>
-          <h2>Alertas de Inventario</h2>
+          <h2 className="titulo-interno">Alertas de Inventario</h2>
           <div className="summary-table">
             <div className="summary-row">
               <span>Productos con stock bajo</span>

@@ -9,8 +9,6 @@ export async function fetchProductos() {
   return data.productos;
 }
 
-// === USUARIOS ===
-
 export async function fetchUsuarios() {
   const resp = await fetch("http://localhost/php-react/php-validar/usuarios_get.php")
   const data = await resp.json()
@@ -109,3 +107,57 @@ export async function fetchVentasHoy() {
   return data.ventas
 }
 
+export async function ajustarStockAdmin(id, cantidad) {
+  const resp = await fetch(
+    "http://localhost/php-react/php-validar/ajustar_stock_admin.php",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, cantidad }),
+    }
+  )
+
+  const data = await resp.json()
+
+  if (!data.ok) {
+    throw new Error(data.mensaje || "Error al ajustar stock")
+  }
+
+  return true
+}
+
+export async function createProducto(producto) {
+  const resp = await fetch("http://localhost/php-react/php-validar/productos_create.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(producto),
+  })
+
+  const data = await resp.json()
+  if (!data.ok) throw new Error(data.mensaje)
+  return data.producto
+}
+
+export async function updateProducto(producto) {
+  const resp = await fetch("http://localhost/php-react/php-validar/productos_update.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(producto),
+  })
+
+  const data = await resp.json()
+  if (!data.ok) throw new Error(data.mensaje || "Error al actualizar producto")
+  return true
+}
+
+export async function deleteProducto(id) {
+  const resp = await fetch("http://localhost/php-react/php-validar/productos_delete.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  })
+
+  const data = await resp.json()
+  if (!data.ok) throw new Error(data.mensaje)
+  return true
+}

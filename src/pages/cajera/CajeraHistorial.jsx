@@ -12,27 +12,6 @@ export default function CajeraHistorial() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
-
-  /*useEffect(() => {
-    const userRole = localStorage.getItem("userRole")
-    if (userRole !== "cajera") {
-      navigate("/")
-    }
-    setUserName(localStorage.getItem("userName") || "Cajera")
-    loadSalesHistory()
-  }, [navigate])
-
-  
-
-  const loadSalesHistory = () => {
-    const sales = JSON.parse(localStorage.getItem("sales") || "[]")
-    const today = new Date().toDateString()
-    const todaySales = sales.filter((sale) => new Date(sale.fecha).toDateString() === today)
-
-    const total = todaySales.reduce((sum, sale) => sum + sale.total, 0)
-    setTotalSales(total)
-    setSalesHistory(todaySales.reverse())
-  }*/
  useEffect(() => {
   const userRole = localStorage.getItem("userRole")
   if (userRole !== "cajera") {
