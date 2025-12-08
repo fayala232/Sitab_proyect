@@ -1,15 +1,12 @@
 "use client"
 
-//import { useState } from "react"
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-//import { products } from "../../lib/product-data"
 import { fetchProductos } from "../../lib/api"
 import "../../sitab.css"
 
 export default function AdminReportes() {
   const navigate = useNavigate()
-  //const [filterType, setFilterType] = useState("todos")
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")

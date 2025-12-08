@@ -8,9 +8,9 @@ import "../sitab.css"
 export default function Login() {
   const [usuario, setUsuario] = useState("")
   const [password, setPassword] = useState("")
-  const [inputFocus, setInputFocus] = useState(null) // Para saber cuál input está seleccionado
-  const [hover, setHover] = useState(false) // Para efecto del botón
-  const [mensaje, setMensaje] = useState(""); // mensaje de error
+  const [inputFocus, setInputFocus] = useState(null) 
+  const [hover, setHover] = useState(false) 
+  const [mensaje, setMensaje] = useState(""); 
   const navigate = useNavigate()
 
     const handleSubmit = async (e) => {
